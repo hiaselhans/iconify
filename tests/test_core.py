@@ -2,7 +2,7 @@
 import os
 
 import iconify
-from iconify.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 
 def test_icon(qtbot, validIconPath):

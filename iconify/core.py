@@ -1,16 +1,17 @@
 """
 The primary objects for interfacing with iconify
 """
+from __future__ import annotations
 
 from typing import TYPE_CHECKING, MutableMapping, Optional, Tuple
 
 from iconify.anim import GlobalTick
 from iconify.path import findIcon
-from iconify.qt import QtCore, QtGui, QtSvg
+from qtpy import QtCore, QtGui, QtSvg
 
 if TYPE_CHECKING:
     from iconify.anim import BaseAnimation
-    from iconify.qt import QtWidgets
+    from qtpy import QtWidgets
     PixmapCacheKey = Tuple[Optional[str], QtCore.QSize, str, int, int]
 
 
@@ -248,8 +249,7 @@ class PixmapGenerator(QtCore.QObject):
 
         self._renderer = QtSvg.QSvgRenderer(self._path)
 
-    def path(self):
-        # type: () -> str
+    def path(self) -> str:
         """
         Return the path to the image used by this PixmapGenerator.
 
@@ -259,8 +259,7 @@ class PixmapGenerator(QtCore.QObject):
         """
         return self._path
 
-    def color(self):
-        # type: () -> Optional[QtGui.QColor]
+    def color(self) -> Optional[QtGui.QColor]:
         """
         Return the color used by this PixmapGenerator.
 
@@ -270,8 +269,7 @@ class PixmapGenerator(QtCore.QObject):
         """
         return self._color
 
-    def anim(self):
-        # type: () -> Optional[BaseAnimation]
+    def anim(self) -> Optional[BaseAnimation]:
         """
         Return the animation used by this PixmapGenerator.
 
@@ -281,8 +279,7 @@ class PixmapGenerator(QtCore.QObject):
         """
         return self._anim
 
-    def pixmap(self, size):
-        # type: (QtCore.QSize) -> QtGui.QPixmap
+    def pixmap(self, size: QtCore.QSize) -> QtGui.QPixmap:
         """
         Render the svg file to a QPixmap, applying the color override and the
         animation transform if applicable.
@@ -298,12 +295,13 @@ class PixmapGenerator(QtCore.QObject):
         color = self._color.rgb() if self._color else -1
 
         if self._anim is not None:
-            key = (
-                self._path, size, str(self._anim.__class__),
-                self._anim.frame(), color
-            )  # type: PixmapCacheKey
+            animation_cls = str(self._anim.__class__)
+            frame = self._anim.frame()
         else:
-            key = (self._path, size, "", 0, color)
+            animation_cls = ""
+            frame = 0
+            
+        key = (self._path, size.width(), size.height(), animation_cls, frame, color)
 
         if key in self._pixmapCache:
             return self._pixmapCache[key]
@@ -333,7 +331,8 @@ class PixmapGenerator(QtCore.QObject):
                 QtGui.QImage.Format_ARGB32_Premultiplied,
             )
             colorImage.fill(QtGui.QColor(self._color))
-            colorImage.setAlphaChannel(image.alphaChannel())
+            if hasattr(image, "alphaChannel"): # not available in PyQt5
+                colorImage.setAlphaChannel(image.alphaChannel())
             image = colorImage
 
         pixmap = QtGui.QPixmap.fromImage(image)

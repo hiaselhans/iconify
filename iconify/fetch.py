@@ -14,7 +14,7 @@ import zipfile
 from typing import IO, Any, List, Mapping, Optional, Tuple
 
 import iconify as ico
-from iconify.qt import QtCore, QtXml
+from qtpy import QtCore, QtXml
 
 if sys.version_info[0] == 2:
     from urllib import urlretrieve

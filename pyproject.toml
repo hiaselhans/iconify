@@ -1,0 +1,7 @@
+[tool.pyright]
+defineConstant = [
+  { PYSIDE6 = false },
+  { PYQT5 = false },
+  { PYSIDE2 = true },
+  { PYQT6 = false }
+]

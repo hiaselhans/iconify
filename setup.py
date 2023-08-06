@@ -2,7 +2,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = 'dev'
+version = '0.0.104'
 
 dir_ = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(dir_, 'README.md')) as f:
@@ -34,7 +34,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: User Interfaces',
     ],

@@ -2,7 +2,7 @@
 import pytest
 
 from iconify.browser import Browser
-from iconify.qt import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 
 
 @pytest.fixture

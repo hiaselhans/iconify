@@ -4,7 +4,7 @@ import inspect
 import pytest
 
 import iconify
-import iconify.qt
+from qtpy import QtCore
 
 
 ANIM_CLASSES = [
@@ -20,7 +20,7 @@ ANIM_CLASSES = [
 def test_animSmokeTests(animCls):
     anim = animCls()
 
-    size = iconify.qt.QtCore.QSize(64, 64)
+    size = QtCore.QSize(64, 64)
 
     initXfm = anim.transform(size)
 
@@ -48,7 +48,7 @@ def test_animStartStop():
 def test_concatAnim():
     anim = iconify.anim.Spin() + iconify.anim.Breathe()
 
-    size = iconify.qt.QtCore.QSize(64, 64)
+    size = QtCore.QSize(64, 64)
 
     initXfm = anim.transform(size)
 

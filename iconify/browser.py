@@ -6,8 +6,8 @@ import sys
 from typing import Any, NoReturn, Optional
 
 import iconify as ico
-from iconify.qt import QtCore, QtGui, QtWidgets
 from kids.cache import cache
+from qtpy import QtCore, QtGui, QtWidgets
 
 VIEW_COLUMNS = 5
 AUTO_SEARCH_TIMEOUT = 500
@@ -18,8 +18,7 @@ NO_ANIM = 'No Anim'
 
 class Browser(QtWidgets.QMainWindow):
 
-    def __init__(self, parent=None):
-        # type: (Optional[QtWidgets.QWidget]) -> None
+    def __init__(self, parent: QtWidgets.QWidget=None):
         super(Browser, self).__init__(parent=parent)
         self.setMinimumSize(1024, 576)
         self.setWindowTitle('Iconify Browser')
@@ -146,15 +145,13 @@ class Browser(QtWidgets.QMainWindow):
         geo.moveCenter(centerPoint)
         self.setGeometry(geo)
 
-    def _iconChanged(self, currentIndex, previousIndex):
-        # type: (QtCore.QModelIndex, QtCore.QModelIndex) -> None
+    def _iconChanged(self, currentIndex: QtCore.QModelIndex, previousIndex: QtCore.QModelIndex) -> None:
         currentIcon = currentIndex.data(QtCore.Qt.DisplayRole)
         self._currentIcon = currentIcon
         self._updatePixmapGenerator()
         self._iconName.setText(self._currentIcon)
 
-    def _animChanged(self):
-        # type: () -> None
+    def _animChanged(self) -> None:
         currentAnim = self._animCombo.currentText()
         if currentAnim == NO_ANIM:
             self._currentAnim = None
@@ -164,8 +161,7 @@ class Browser(QtWidgets.QMainWindow):
                 self._currentAnim.start()
         self._updatePixmapGenerator()
 
-    def _colorChanged(self):
-        # type: () -> None
+    def _colorChanged(self) -> None:
         currentColor = self._colorCombo.currentText()
         if currentColor == NO_COLOR:
             self._currentColor = None
@@ -173,8 +169,7 @@ class Browser(QtWidgets.QMainWindow):
             self._currentColor = QtGui.QColor(currentColor)
         self._updatePixmapGenerator()
 
-    def _updatePixmapGenerator(self):
-        # type: () -> None
+    def _updatePixmapGenerator(self) -> None:
         if self._currentIcon is None:
             pixmapGenerator = None
         else:
@@ -184,8 +179,7 @@ class Browser(QtWidgets.QMainWindow):
 
         self._previewImage.setPixmapGenerator(pixmapGenerator)
 
-    def _updateFilter(self):
-        # type: () -> None
+    def _updateFilter(self) -> None:
         """
         Update the string used for filtering in the proxy model with the
         current text from the line edit.
@@ -202,16 +196,14 @@ class Browser(QtWidgets.QMainWindow):
 
         self._proxyModel.setFilterRegExp(reString)
 
-    def _triggerDelayedUpdate(self):
-        # type: () -> None
+    def _triggerDelayedUpdate(self) -> None:
         """
         Reset the timer used for committing the search term to the proxy model.
         """
         self._filterTimer.stop()
         self._filterTimer.start()
 
-    def _triggerImmediateUpdate(self):
-        # type: () -> None
+    def _triggerImmediateUpdate(self) -> None:
         """
         Stop the timer used for committing the search term and update the
         proxy model immediately.
@@ -219,8 +211,7 @@ class Browser(QtWidgets.QMainWindow):
         self._filterTimer.stop()
         self._updateFilter()
 
-    def _copyIconText(self):
-        # type: () -> None
+    def _copyIconText(self) -> None:
         """
         Copy the name of the currently selected icon to the clipboard.
         """
@@ -238,13 +229,11 @@ class View(QtWidgets.QListView):
     columns are always drawn.
     """
 
-    def __init__(self, parent=None):
-        # type: (Optional[QtWidgets.QWidget]) -> None
+    def __init__(self, parent: Optional[QtWidgets.QWidget]=None):
         super(View, self).__init__(parent)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
-    def resizeEvent(self, event):
-        # type: (QtCore.QEvent) -> bool
+    def resizeEvent(self, event: QtCore.QEvent) -> bool:
         """
         Re-implemented to re-calculate the grid size to provide scaling icons
 
@@ -256,7 +245,7 @@ class View(QtWidgets.QListView):
         # The minus 30 above ensures we don't end up with an item width that
         # can't be drawn the expected number of times across the view without
         # being wrapped. Without this, the view can flicker during resize
-        tileWidth = width / VIEW_COLUMNS
+        tileWidth = int(width / VIEW_COLUMNS)
         iconWidth = int(tileWidth * 0.8)
 
         self.setGridSize(QtCore.QSize(tileWidth, tileWidth))
@@ -267,13 +256,11 @@ class View(QtWidgets.QListView):
 
 class Model(QtCore.QStringListModel):
 
-    def flags(self, index):
-        # type: (QtCore.QModelIndex) -> QtCore.QItemFlags
+    def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
     @cache
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        # type: (QtCore.QModelIndex, QtCore.Qt.ItemRole) -> Any
+    def data(self, index: QtCore.QModelIndex, role: QtCore.Qt.ItemDataRole=QtCore.Qt.DisplayRole) -> Any:
         """
         Re-implemented to return the icon for the current index.
 

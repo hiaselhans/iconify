@@ -1,11 +1,12 @@
 """
 The animation objects for iconify
 """
+from __future__ import annotations
 
 from enum import Enum
 from typing import Optional, Sequence, Tuple
 
-from iconify.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui
 
 
 class GlobalTick(QtCore.QObject):
@@ -15,12 +16,12 @@ class GlobalTick(QtCore.QObject):
 
     timeout = QtCore.Signal()
 
-    _instance = None  # type: Optional[GlobalTick]
+    _instance: Optional[GlobalTick] = None
 
     def __init__(self):
         # type: () -> None
         # Note: No parent so it's owned by Qt
-        super(GlobalTick, self).__init__()
+        super().__init__()
         self._tick = QtCore.QTimer()
         self._tick.timeout.connect(self.timeout.emit)
         self._tick.setInterval(17)  # 60fps (ish)
@@ -66,8 +67,7 @@ class BaseAnimation(QtCore.QObject):
             return concatAnim
         raise ValueError("Unsupported operation!")
 
-    def transform(self, rect):
-        # type: (QtCore.QRect) -> QtGui.QTransform
+    def transform(self, rect: QtCore.QSize) -> QtGui.QTransform:
         """
         Return a QtGui.QTransform for the current frame that will be used
         when drawing an image in the provided QRect.
@@ -105,7 +105,7 @@ class BaseAnimation(QtCore.QObject):
         """
         try:
             GlobalTick.instance().timeout.disconnect(self._tick)
-        except RuntimeError:
+        except (RuntimeError, TypeError):
             pass
         self._active = False
 
@@ -190,14 +190,13 @@ class Spin(BaseAnimation):
         CLOCKWISE = 0
         ANTI_CLOCKWISE = 1
 
-    def __init__(self, direction=Directions.CLOCKWISE, rpm=60):
+    def __init__(self, direction: Directions=Directions.CLOCKWISE, rpm: float=60.) -> None:
         super(Spin, self).__init__()
         self._maxFrame = int(60.0 / (rpm / 60.0))
         self._direction = direction
 
-    def transform(self, size):
-        # type: (QtCore.QSize) -> QtGui.QTransform
-        halfSize = size / 2
+    def transform(self, size: QtCore.QSize) -> QtGui.QTransform:
+        halfSize = size * 0.5
 
         rotation = 360.0 / self._maxFrame
         if self._direction == Spin.Directions.ANTI_CLOCKWISE:
@@ -228,8 +227,7 @@ class Breathe(BaseAnimation):
         sqt = t * t
         return sqt / (2.0 * (sqt - t) + 1.0)
 
-    def transform(self, size):
-        # type: (QtCore.QSize) -> QtGui.QTransform
+    def transform(self, size: QtCore.QSize) -> QtGui.QTransform:
         halfWay = self._maxFrame / 2
 
         if self._frame > halfWay:
@@ -267,8 +265,7 @@ class _ConcatAnim(BaseAnimation):
         self._anims = tuple(anims)
         self._maxFrame = max([a._maxFrame for a in anims])
 
-    def transform(self, rect):
-        # type: (QtCore.QRect) -> QtGui.QTransform
+    def transform(self, rect: QtCore.QSize) -> QtGui.QTransform:
         xfm = QtGui.QTransform()
 
         for anim in self._anims:
@@ -328,7 +325,7 @@ class Scroll(BaseAnimation):
         self._maxFrame = int(60.0 / (rpm / 60.0))
         self._direction = direction
 
-    def transform(self, rect):
+    def transform(self, rect: QtCore.QSize) -> QtGui.QTransform:
         if self._direction & Scroll.Directions.LEFT:
             xMult = 1
         elif self._direction & Scroll.Directions.RIGHT:
